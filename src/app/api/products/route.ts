@@ -37,12 +37,20 @@ export async function POST(request: NextRequest) {
   const unauthorized = await requireAdmin(request);
   if (unauthorized) return unauthorized;
 
-  const body = await request.json();
-  const parsed = productInputSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
-  }
+  try {
+    const body = await request.json();
+    const parsed = productInputSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    }
 
-  const product = await createProduct(parsed.data);
-  return NextResponse.json({ product }, { status: 201 });
+    const product = await createProduct(parsed.data);
+    return NextResponse.json({ product }, { status: 201 });
+  } catch (error) {
+    console.error("Product creation failed", error);
+    return NextResponse.json(
+      { error: "Could not save product because the database is unavailable or misconfigured. Check Railway DATABASE_URL and the mounted volume." },
+      { status: 500 }
+    );
+  }
 }

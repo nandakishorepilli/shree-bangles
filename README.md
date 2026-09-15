@@ -42,8 +42,12 @@ intentionally no link to it in the public navigation) — sign in with the
 ## Railway deployment with SQLite
 
 Mount a Railway Volume at `/app/data` and set the Railway `DATABASE_URL`
-variable to `file:/app/data/shree-bangles.db`. This value stays environment-
-specific: local development continues to use the `DATABASE_URL` in `.env`.
+variable to `file:/app/data/shree-bangles.db`, plus `UPLOADS_DIR` to
+`/app/data/uploads`. Product images are stored in that persistent directory
+and served through stable `/api/uploads/:filename` URLs. This value stays
+environment-specific: local development continues to use the `DATABASE_URL`
+in `.env`; production deliberately refuses to use the app filesystem for
+uploads.
 
 For a new, empty volume, run `npm run db:push` and then `npm run db:seed` once
 as deliberate initialization steps. The normal build and application start do
