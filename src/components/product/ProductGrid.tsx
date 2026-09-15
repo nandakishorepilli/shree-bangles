@@ -5,7 +5,7 @@ export function ProductGrid({ products }: { products: ProductWithRelations[] }) 
   if (products.length === 0) {
     return (
       <p className="py-16 text-center text-blush-400">
-        No products to show here yet — check back soon, or add one from the admin dashboard.
+        New designs are coming soon. Please check back shortly.
       </p>
     );
   }
