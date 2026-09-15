@@ -1,0 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream-50 text-blush-900 font-body;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  /* Subtle repeating paisley/dot motif used as a section background accent.
+     Kept intentionally faint (low opacity) so it never competes with content. */
+  .bg-paisley-faint {
+    background-image: radial-gradient(circle at 1px 1px, theme("colors.gold.400") 1px, transparent 0);
+    background-size: 22px 22px;
+    opacity: 0.08;
+  }
+
+  .gold-divider {
+    @apply h-px w-16 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto;
+  }
+}
