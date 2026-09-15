@@ -9,3 +9,5 @@ public/uploads/*
 *.log
 .env.local
 *.tsbuildinfo
+
+.chrome-mobile-qa/

@@ -14,7 +14,20 @@ export async function GET(request: NextRequest) {
     newArrival: searchParams.get("newArrival") === "true",
     bestseller: searchParams.get("bestseller") === "true"
   });
-  return NextResponse.json({ products });
+  return NextResponse.json({
+    products: products.map((product) => ({
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      price: product.price,
+      salePrice: product.salePrice,
+      isFeatured: product.isFeatured,
+      isNewArrival: product.isNewArrival,
+      isBestseller: product.isBestseller,
+      inStock: product.stock > 0 || product.variants.some((variant) => variant.stock > 0),
+      images: product.images.map((image) => ({ url: image.url, altText: image.altText }))
+    }))
+  });
 }
 
 // POST /api/products — admin only. This is how new products become visible

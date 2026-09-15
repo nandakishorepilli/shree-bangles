@@ -1,52 +1,72 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { getWhatsappOrderUrl } from "@/lib/business";
 import { formatPrice } from "@/lib/utils";
 
 export default function CheckoutPage() {
-  const { lines, subtotal, clearCart } = useCart();
-  const router = useRouter();
+  const { lines, subtotal } = useCart();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [whatsappOpened, setWhatsappOpened] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const payload = {
-      customerName: formData.get("customerName"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      address: formData.get("address"),
-      city: formData.get("city"),
-      state: formData.get("state"),
-      pincode: formData.get("pincode"),
-      items: lines.map((l) => ({
-        productId: l.productId,
-        productName: l.name,
-        price: l.price,
-        quantity: l.quantity,
-        color: l.color,
-        size: l.size
-      }))
-    };
+    setWhatsappOpened(false);
 
     try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+      const formData = new FormData(e.currentTarget);
+      const customerName = String(formData.get("customerName") ?? "");
+      const email = String(formData.get("email") ?? "").trim();
+      const phone = String(formData.get("phone") ?? "");
+      const address = String(formData.get("address") ?? "");
+      const city = String(formData.get("city") ?? "");
+      const state = String(formData.get("state") ?? "");
+      const pincode = String(formData.get("pincode") ?? "");
+      const itemDetails = lines.map((line, index) => {
+        const options = [line.color && `Colour: ${line.color}`, line.size && `Size: ${line.size}`].filter(Boolean);
+        const customization = line.customization
+          ? `\n   Custom details: ${line.customization.kundams.map((kundam) => kundam.name).join(", ")} · ${line.customization.shade} ${line.customization.color}`
+          : "";
+
+        return `${index + 1}. ${line.name}\n   ${options.length > 0 ? `${options.join(" | ")}\n   ` : ""}Quantity: ${line.quantity}\n   Price: ${formatPrice(line.price)}\n   Item total: ${formatPrice(line.price * line.quantity)}${customization}`;
       });
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.error ?? "Could not place order");
+      const message = [
+        "Hello Shree Bangles! I would like to place an order.",
+        "",
+        "Customer details",
+        `Name: ${customerName}`,
+        `Phone: ${phone}`,
+        email ? `Email: ${email}` : null,
+        "",
+        "Delivery address",
+        address,
+        `${city}, ${state} - ${pincode}`,
+        "",
+        "Order items",
+        ...itemDetails,
+        "",
+        `Order subtotal: ${formatPrice(subtotal)}`,
+        `Order total: ${formatPrice(subtotal)}`,
+        "",
+        "Please confirm availability and delivery details."
+      ].filter((line): line is string => line !== null).join("\n");
+      const whatsappUrl = getWhatsappOrderUrl(message);
+
+      if (!whatsappUrl) throw new Error("WhatsApp ordering is currently unavailable. Please try again later.");
+
+      const whatsappWindow = window.open();
+      if (!whatsappWindow) {
+        throw new Error("WhatsApp could not be opened. Please allow pop-ups for this site and try again.");
       }
-      clearCart();
-      router.push("/");
+
+      whatsappWindow.opener = null;
+      whatsappWindow.location.href = whatsappUrl;
+
+      setWhatsappOpened(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -63,8 +83,9 @@ export default function CheckoutPage() {
       <form onSubmit={handleSubmit} className="space-y-4 md:col-span-2">
         <h1 className="mb-4 font-display text-3xl text-blush-900">Checkout</h1>
         {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+        {whatsappOpened && <p className="rounded-lg bg-blush-50 p-3 text-sm text-blush-700">WhatsApp has opened with your order details. Please review the message and press Send in WhatsApp to submit your order.</p>}
         <Input name="customerName" label="Full Name" required />
-        <Input name="email" label="Email" type="email" required />
+        <Input name="email" label="Email (optional)" type="email" />
         <Input name="phone" label="Phone" required />
         <Input name="address" label="Address" required />
         <div className="grid grid-cols-3 gap-4">
@@ -77,19 +98,20 @@ export default function CheckoutPage() {
           disabled={submitting}
           className="mt-4 w-full rounded-full bg-blush-600 py-3 font-medium text-cream-50 hover:bg-blush-700 disabled:opacity-60"
         >
-          {submitting ? "Placing Order..." : "Place Order"}
+          {submitting ? "Opening WhatsApp..." : "Order on WhatsApp"}
         </button>
         <p className="text-xs text-blush-400">
-          Payment integration is not yet connected — this places the order as &quot;Pending&quot; for manual follow-up.
+          WhatsApp will open with your order details. Your order is sent only after you press Send in WhatsApp.
         </p>
       </form>
 
       <div className="h-fit rounded-xl border border-blush-100 p-6">
         <h2 className="mb-4 font-display text-xl text-blush-900">Order Summary</h2>
         {lines.map((l) => (
-          <div key={`${l.productId}-${l.color}-${l.size}`} className="mb-2 flex justify-between text-sm">
+          <div key={`${l.productId}-${l.variantId}-${l.color}-${l.size}-${JSON.stringify(l.customization)}`} className="mb-2 flex justify-between text-sm">
             <span>
               {l.name} × {l.quantity}
+              {l.customization && <span className="block text-xs text-blush-500">{l.customization.kundams.map((kundam) => kundam.name).join(", ")} · {l.customization.shade} {l.customization.color}</span>}
             </span>
             <span>{formatPrice(l.price * l.quantity)}</span>
           </div>

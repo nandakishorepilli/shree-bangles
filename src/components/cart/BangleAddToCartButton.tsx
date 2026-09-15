@@ -55,7 +55,7 @@ export function BangleAddToCartButton({ onAdd, disabled, label = "Add to Cart" }
         )}
       </svg>
       <span className="font-medium tracking-wide">
-        {disabled ? "Out of Stock" : state === "confirmed" ? "Added!" : label}
+        {state === "confirmed" ? "Added!" : label}
       </span>
     </button>
   );

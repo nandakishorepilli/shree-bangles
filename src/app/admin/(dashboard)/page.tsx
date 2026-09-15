@@ -21,6 +21,9 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/products/new" className="rounded-full bg-blush-600 px-6 py-2.5 text-sm font-medium text-white">
           + Add Product
         </Link>
+        <Link href="/admin/kundams" className="rounded-full border border-blush-300 px-6 py-2.5 text-sm font-medium text-blush-700">
+          Manage Kundan Designs
+        </Link>
       </div>
     </div>
   );

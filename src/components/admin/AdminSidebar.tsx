@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/products", label: "Products" }
+  { href: "/admin/products", label: "Products" },
+  { href: "/admin/kundams", label: "Kundan Designs" },
+  { href: "/admin/instagram-posts", label: "Instagram Posts" }
 ];
 
 export function AdminSidebar({ adminEmail }: { adminEmail: string }) {

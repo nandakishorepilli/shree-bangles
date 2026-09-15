@@ -27,7 +27,7 @@ export default function CartPage() {
         <div className="space-y-4 md:col-span-2">
           {lines.map((line) => (
             <div
-              key={`${line.productId}-${line.color}-${line.size}`}
+              key={`${line.productId}-${line.variantId}-${line.color}-${line.size}-${JSON.stringify(line.customization)}`}
               className="flex gap-4 rounded-xl border border-blush-100 p-4"
             >
               <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-blush-50">
@@ -39,10 +39,11 @@ export default function CartPage() {
                     <p className="font-display text-lg text-blush-900">{line.name}</p>
                     <p className="text-sm text-blush-400">
                       {[line.color, line.size].filter(Boolean).join(" / ")}
+                      {line.customization && <span className="block">{line.customization.kundams.map((kundam) => kundam.name).join(", ")} · {line.customization.shade} {line.customization.color}</span>}
                     </p>
                   </div>
                   <button
-                    onClick={() => removeItem(line.productId, line.color, line.size)}
+                    onClick={() => removeItem(line.productId, line.variantId, line.color, line.size, line.customization)}
                     className="text-sm text-blush-400 hover:text-blush-700"
                   >
                     Remove
@@ -52,7 +53,7 @@ export default function CartPage() {
                   <div className="flex items-center gap-2">
                     <button
                       className="h-7 w-7 rounded-full border border-blush-200 text-blush-700"
-                      onClick={() => updateQuantity(line.productId, line.color, line.size, line.quantity - 1)}
+                      onClick={() => updateQuantity(line.productId, line.variantId, line.color, line.size, line.quantity - 1, line.customization)}
                     >
                       -
                     </button>
@@ -60,7 +61,7 @@ export default function CartPage() {
                     <button
                       className="h-7 w-7 rounded-full border border-blush-200 text-blush-700 disabled:opacity-30"
                       disabled={line.quantity >= line.maxStock}
-                      onClick={() => updateQuantity(line.productId, line.color, line.size, line.quantity + 1)}
+                      onClick={() => updateQuantity(line.productId, line.variantId, line.color, line.size, line.quantity + 1, line.customization)}
                     >
                       +
                     </button>

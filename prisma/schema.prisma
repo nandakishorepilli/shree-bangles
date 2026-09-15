@@ -114,4 +114,31 @@ model OrderItem {
   quantity    Int
   color       String?
   size        String?
+  customization String?
+}
+
+model KundamDesign {
+  id          String   @id @default(cuid())
+  name        String
+  image       String
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+// A single record powers the five curated links in the homepage Instagram
+// section. Keeping this separate from products and Kundan designs makes it a
+// deliberately small, focused admin setting.
+model InstagramPostSettings {
+  id        Int      @id @default(1)
+  post1     String
+  post2     String
+  post3     String
+  post4     String
+  post5     String
+  updatedAt DateTime @updatedAt
 }

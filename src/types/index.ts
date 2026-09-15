@@ -28,7 +28,8 @@ export interface ProductInput {
 
 /** A single line in the client-side cart (stored in localStorage). */
 export interface CartLine {
-  productId: string;
+  productId?: string;
+  variantId?: string;
   name: string;
   slug: string;
   price: number;
@@ -37,4 +38,9 @@ export interface CartLine {
   size?: string;
   quantity: number;
   maxStock: number;
+  customization?: {
+    kundams: { id: string; name: string; image: string }[];
+    color: string;
+    shade: "Light" | "Normal" | "Dark";
+  };
 }

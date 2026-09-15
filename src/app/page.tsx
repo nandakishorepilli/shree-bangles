@@ -5,17 +5,13 @@ import { HandmadeSection } from "@/components/home/HandmadeSection";
 import { CustomizedBangles } from "@/components/home/CustomizedBangles";
 import { InstagramGallery } from "@/components/home/InstagramGallery";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
+import { getInstagramPosts } from "@/services/instagramPostService";
 
-// This is a Server Component: all product data is fetched here from the
-// database via the service layer, never hardcoded. When the admin publishes
-// a new product marked "New Arrival", "Bestseller", or "Featured", it will
-// appear here automatically on next page load — no code changes required.
+// This is a Server Component: product data is fetched through the service
+// layer, so newly published arrivals appear automatically on the next load.
 export default async function HomePage() {
-  const [newArrivals, bestsellers, featured] = await Promise.all([
-    getProducts({ newArrival: true }),
-    getProducts({ bestseller: true }),
-    getProducts({ featured: true })
-  ]);
+  const newArrivals = await getProducts({ newArrival: true });
+  const instagramPosts = await getInstagramPosts();
 
   return (
     <div className="space-y-20 py-10">
@@ -30,29 +26,11 @@ export default async function HomePage() {
 
       <MandalaDivider />
 
-      <ProductSection
-        title="Best Sellers"
-        subtitle="Loved again and again by our customers."
-        products={bestsellers.slice(0, 8)}
-        viewAllHref="/shop?filter=bestseller"
-      />
-
-      <MandalaDivider />
-
-      <ProductSection
-        title="Featured Collection"
-        subtitle="Curated pieces, handpicked for the season."
-        products={featured.slice(0, 8)}
-        viewAllHref="/shop?filter=featured"
-      />
-
-      <MandalaDivider />
-
       <HandmadeSection />
 
       <CustomizedBangles />
 
-      <InstagramGallery />
+      <InstagramGallery posts={instagramPosts} />
     </div>
   );
 }

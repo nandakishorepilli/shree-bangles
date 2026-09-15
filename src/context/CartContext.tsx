@@ -10,16 +10,20 @@ interface CartContextValue {
   itemCount: number;
   subtotal: number;
   addItem: (line: CartLine) => void;
-  updateQuantity: (productId: string, color: string | undefined, size: string | undefined, quantity: number) => void;
-  removeItem: (productId: string, color: string | undefined, size: string | undefined) => void;
+  updateQuantity: (productId: string | undefined, variantId: string | undefined, color: string | undefined, size: string | undefined, quantity: number, customization?: CartLine["customization"]) => void;
+  removeItem: (productId: string | undefined, variantId: string | undefined, color: string | undefined, size: string | undefined, customization?: CartLine["customization"]) => void;
   clearCart: () => void;
   isBagAnimating: boolean;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-function lineKey(productId: string, color?: string, size?: string) {
-  return `${productId}::${color ?? ""}::${size ?? ""}`;
+function lineKey(productId: string | undefined, variantId?: string, color?: string, size?: string, customization?: CartLine["customization"]) {
+  return `${productId ?? "custom"}::${variantId ?? ""}::${color ?? ""}::${size ?? ""}::${customization ? JSON.stringify(customization) : ""}`;
+}
+
+function inventoryKey(line: CartLine) {
+  return line.variantId ? `variant::${line.variantId}` : `product::${line.productId ?? "custom"}`;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -51,32 +55,42 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function addItem(newLine: CartLine) {
     setLines((prev) => {
-      const key = lineKey(newLine.productId, newLine.color, newLine.size);
-      const existing = prev.find((l) => lineKey(l.productId, l.color, l.size) === key);
+      const key = lineKey(newLine.productId, newLine.variantId, newLine.color, newLine.size, newLine.customization);
+      const existing = prev.find((l) => lineKey(l.productId, l.variantId, l.color, l.size, l.customization) === key);
+      const otherQuantity = prev
+        .filter((line) => inventoryKey(line) === inventoryKey(newLine) && lineKey(line.productId, line.variantId, line.color, line.size, line.customization) !== key)
+        .reduce((total, line) => total + line.quantity, 0);
       if (existing) {
         return prev.map((l) =>
-          lineKey(l.productId, l.color, l.size) === key
-            ? { ...l, quantity: Math.min(l.quantity + newLine.quantity, l.maxStock) }
+          lineKey(l.productId, l.variantId, l.color, l.size, l.customization) === key
+            ? { ...l, quantity: Math.min(l.quantity + newLine.quantity, Math.max(0, newLine.maxStock - otherQuantity)) }
             : l
         );
       }
-      return [...prev, newLine];
+      return [...prev, { ...newLine, quantity: Math.min(newLine.quantity, Math.max(0, newLine.maxStock - otherQuantity)) }]
+        .filter((line) => line.quantity > 0);
     });
     triggerBagAnimation();
   }
 
-  function updateQuantity(productId: string, color: string | undefined, size: string | undefined, quantity: number) {
-    const key = lineKey(productId, color, size);
+  function updateQuantity(productId: string | undefined, variantId: string | undefined, color: string | undefined, size: string |undefined, quantity: number, customization?: CartLine["customization"]) {
+    const key = lineKey(productId, variantId, color, size, customization);
     setLines((prev) =>
       prev
-        .map((l) => (lineKey(l.productId, l.color, l.size) === key ? { ...l, quantity } : l))
+        .map((l) => {
+          if (lineKey(l.productId, l.variantId, l.color, l.size, l.customization) !== key) return l;
+          const otherQuantity = prev
+            .filter((other) => inventoryKey(other) === inventoryKey(l) && lineKey(other.productId, other.variantId, other.color, other.size, other.customization) !== key)
+            .reduce((total, other) => total + other.quantity, 0);
+          return { ...l, quantity: Math.min(quantity, Math.max(0, l.maxStock - otherQuantity)) };
+        })
         .filter((l) => l.quantity > 0)
     );
   }
 
-  function removeItem(productId: string, color: string | undefined, size: string | undefined) {
-    const key = lineKey(productId, color, size);
-    setLines((prev) => prev.filter((l) => lineKey(l.productId, l.color, l.size) !== key));
+  function removeItem(productId: string | undefined, variantId: string | undefined, color: string | undefined, size: string | undefined, customization?: CartLine["customization"]) {
+    const key = lineKey(productId, variantId, color, size, customization);
+    setLines((prev) => prev.filter((l) => lineKey(l.productId, l.variantId, l.color, l.size, l.customization) !== key));
   }
 
   function clearCart() {

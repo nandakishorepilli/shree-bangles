@@ -8,8 +8,8 @@ import type { ProductInput } from "@/types";
  *
  * Every read/write to the Product table goes through here — API routes and
  * server components should never call `prisma.product.*` directly. This
- * keeps business rules (e.g. products added through admin are public)
- * in one place instead of scattered across route handlers.
+ * keeps business rules in one place instead of scattered across route
+ * handlers.
  */
 
 const productWithRelations = {
@@ -26,11 +26,11 @@ export interface ProductFilters {
   bestseller?: boolean;
 }
 
-/** Public catalogue. Legacy HIDDEN products stay hidden; Draft is no longer a customer-facing workflow. */
+/** Public catalogue — only explicitly published products are customer-facing. */
 export async function getProducts(filters: ProductFilters = {}) {
   return prisma.product.findMany({
     where: {
-      status: { not: PRODUCT_STATUS.HIDDEN },
+      status: PRODUCT_STATUS.PUBLISHED,
       category: filters.categorySlug ? { slug: filters.categorySlug } : undefined,
       isFeatured: filters.featured ? true : undefined,
       isNewArrival: filters.newArrival ? true : undefined,
@@ -49,10 +49,10 @@ export async function getProducts(filters: ProductFilters = {}) {
   });
 }
 
-/** Public-facing single product lookup. Legacy HIDDEN products remain unavailable. */
+/** Public-facing single product lookup — only published products are available. */
 export async function getProductBySlug(slug: string) {
   return prisma.product.findFirst({
-    where: { slug, status: { not: PRODUCT_STATUS.HIDDEN } },
+    where: { slug, status: PRODUCT_STATUS.PUBLISHED },
     include: productWithRelations
   });
 }
@@ -97,8 +97,7 @@ export async function createProduct(input: ProductInput) {
       salePrice: input.salePrice ?? null,
       stock: input.stock,
       categoryId,
-      // Retained column: new products are public automatically.
-      status: PRODUCT_STATUS.PUBLISHED,
+      status: input.status ?? PRODUCT_STATUS.DRAFT,
       isFeatured: input.isFeatured,
       isNewArrival: input.isNewArrival,
       isBestseller: input.isBestseller,
@@ -127,7 +126,7 @@ export async function updateProduct(id: string, input: ProductInput) {
         // Keep the current category for edits. The category is now an
         // implementation detail, not a product-management field.
         ...(input.categoryId ? { categoryId: input.categoryId } : {}),
-        status: PRODUCT_STATUS.PUBLISHED,
+        ...(input.status ? { status: input.status } : {}),
         isFeatured: input.isFeatured,
         isNewArrival: input.isNewArrival,
         isBestseller: input.isBestseller,

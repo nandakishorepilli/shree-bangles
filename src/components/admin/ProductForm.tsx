@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { STANDARD_BANGLE_SIZES } from "@/lib/bangleSizes";
+import { PRODUCT_STATUS, type ProductStatus } from "@/lib/status";
 import type { ProductWithRelations } from "@/types";
 
 interface ImageEntry {
@@ -38,6 +39,9 @@ export function ProductForm({ initialProduct }: Props) {
   const [price, setPrice] = useState(initialProduct?.price?.toString() ?? "");
   const [salePrice, setSalePrice] = useState(initialProduct?.salePrice?.toString() ?? "");
   const [stock, setStock] = useState(initialProduct?.stock?.toString() ?? "0");
+  const [status, setStatus] = useState<ProductStatus>(
+    (initialProduct?.status as ProductStatus | undefined) ?? PRODUCT_STATUS.DRAFT
+  );
   const [isFeatured, setIsFeatured] = useState(initialProduct?.isFeatured ?? false);
   const [isNewArrival, setIsNewArrival] = useState(initialProduct?.isNewArrival ?? false);
   const [isBestseller, setIsBestseller] = useState(initialProduct?.isBestseller ?? false);
@@ -95,6 +99,7 @@ export function ProductForm({ initialProduct }: Props) {
       price: Number(price),
       salePrice: salePrice ? Number(salePrice) : null,
       stock: Number(stock),
+      status,
       isFeatured,
       isNewArrival,
       isBestseller,
@@ -152,6 +157,14 @@ export function ProductForm({ initialProduct }: Props) {
           This stock is shared across all standard bangle sizes: {STANDARD_BANGLE_SIZES.join(", ")}.
         </p>
       </div>
+
+      <Field label="Status">
+        <select value={status} onChange={(e) => setStatus(e.target.value as ProductStatus)} className="input">
+          <option value={PRODUCT_STATUS.DRAFT}>Draft</option>
+          <option value={PRODUCT_STATUS.PUBLISHED}>Published</option>
+          <option value={PRODUCT_STATUS.HIDDEN}>Hidden</option>
+        </select>
+      </Field>
 
       <div className="flex flex-wrap gap-6">
         <Checkbox label="Featured" checked={isFeatured} onChange={setIsFeatured} />

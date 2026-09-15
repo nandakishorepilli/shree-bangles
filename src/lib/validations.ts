@@ -33,24 +33,18 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required")
 });
 
-export const checkoutSchema = z.object({
-  customerName: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().min(8),
-  address: z.string().min(5),
-  city: z.string().min(2),
-  state: z.string().min(2),
-  pincode: z.string().min(4),
-  items: z
-    .array(
-      z.object({
-        productId: z.string(),
-        productName: z.string(),
-        price: z.number().positive(),
-        quantity: z.number().int().positive(),
-        color: z.string().optional(),
-        size: z.string().optional()
-      })
-    )
-    .min(1, "Cart is empty")
+export const kundamInputSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  image: z.string().min(1, "An image is required"),
+  description: z.string().optional(),
+  isActive: z.boolean(),
+  sortOrder: z.number().int().min(0)
+});
+
+export const instagramPostsSchema = z.object({
+  post1: z.string().url("Post 1 must be a valid URL"),
+  post2: z.string().url("Post 2 must be a valid URL"),
+  post3: z.string().url("Post 3 must be a valid URL"),
+  post4: z.string().url("Post 4 must be a valid URL"),
+  post5: z.string().url("Post 5 must be a valid URL")
 });
