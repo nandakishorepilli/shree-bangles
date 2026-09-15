@@ -1,6 +1,8 @@
 import { getProducts } from "@/services/productService";
 import { ProductGrid } from "@/components/product/ProductGrid";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   searchParams: { category?: string; filter?: "newArrival" | "bestseller" | "featured"; search?: string };
 }

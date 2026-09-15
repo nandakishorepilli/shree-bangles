@@ -4,6 +4,8 @@ import { formatPrice } from "@/lib/utils";
 import { ProductDetailActions } from "@/components/product/ProductDetailActions";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: { slug: string };
 }

@@ -4,8 +4,9 @@
   "private": true,
   "description": "Private online storefront + admin dashboard for a handmade Indian bangle business.",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",

@@ -7,6 +7,8 @@ import { InstagramGallery } from "@/components/home/InstagramGallery";
 import { MandalaDivider } from "@/components/ui/MandalaDivider";
 import { getInstagramPosts } from "@/services/instagramPostService";
 
+export const dynamic = "force-dynamic";
+
 // This is a Server Component: product data is fetched through the service
 // layer, so newly published arrivals appear automatically on the next load.
 export default async function HomePage() {

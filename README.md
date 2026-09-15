@@ -39,6 +39,16 @@ The admin dashboard is at `http://localhost:3000/admin` (there is
 intentionally no link to it in the public navigation) — sign in with the
 `ADMIN_EMAIL` / `ADMIN_PASSWORD` you set in `.env`.
 
+## Railway deployment with SQLite
+
+Mount a Railway Volume at `/app/data` and set the Railway `DATABASE_URL`
+variable to `file:/app/data/shree-bangles.db`. This value stays environment-
+specific: local development continues to use the `DATABASE_URL` in `.env`.
+
+For a new, empty volume, run `npm run db:push` and then `npm run db:seed` once
+as deliberate initialization steps. The normal build and application start do
+not seed or overwrite the database.
+
 ## Useful scripts
 
 | Command             | What it does                                      |

@@ -3,6 +3,8 @@ import { getCategoryBySlug } from "@/services/categoryService";
 import { getProducts } from "@/services/productService";
 import { ProductGrid } from "@/components/product/ProductGrid";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: { category: string };
 }
