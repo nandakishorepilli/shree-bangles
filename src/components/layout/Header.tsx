@@ -23,14 +23,19 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-blush-100 bg-cream-50/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" aria-label="Shree Bangles home">
+        <Link
+          href="/"
+          aria-label="Shree Bangles home"
+          className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full sm:h-16 sm:w-16"
+        >
           <Image
             src="/shree-bangles-logo.png"
             alt="Shree Bangles"
-            width={32}
-            height={32}
-            className="h-8 w-8 rounded-full object-cover"
+            width={64}
+            height={64}
+            className="h-full w-full object-cover"
             priority
+            unoptimized
           />
         </Link>
 

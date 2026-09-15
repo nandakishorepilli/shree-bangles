@@ -12,9 +12,10 @@ export function Footer() {
             <Image
               src="/shree-bangles-logo.png"
               alt="Shree Bangles"
-              width={32}
-              height={32}
-              className="mb-3 h-8 w-8 rounded-full object-cover"
+              width={48}
+              height={48}
+              className="mb-3 h-12 w-12 rounded-full object-cover"
+              unoptimized
             />
             <p className="text-sm text-blush-800">
               Handmade bangles crafted with love, celebrating Indian tradition with a modern touch.
