@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { getWhatsappOrderUrl } from "@/lib/business";
+import { getProductUrl, getWhatsappOrderUrl } from "@/lib/business";
 import { formatPrice } from "@/lib/utils";
 
 export default function CheckoutPage() {
@@ -32,7 +32,7 @@ export default function CheckoutPage() {
           ? `\n   Custom details: ${line.customization.kundams.map((kundam) => kundam.name).join(", ")} · ${line.customization.shade} ${line.customization.color}`
           : "";
 
-        return `${index + 1}. ${line.name}\n   ${options.length > 0 ? `${options.join(" | ")}\n   ` : ""}Quantity: ${line.quantity}\n   Price: ${formatPrice(line.price)}\n   Item total: ${formatPrice(line.price * line.quantity)}${customization}`;
+        return `${index + 1}. ${line.name}\n   ${options.length > 0 ? `${options.join(" | ")}\n   ` : ""}Quantity: ${line.quantity}\n   Price: ${formatPrice(line.price)}\n   Item total: ${formatPrice(line.price * line.quantity)}\n   Product Link: ${getProductUrl(line.slug)}${customization}`;
       });
       const message = [
         "Hello Shree Bangles! I would like to place an order.",

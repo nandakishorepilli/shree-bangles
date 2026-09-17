@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { STANDARD_BANGLE_SIZES } from "@/lib/bangleSizes";
-import { getWhatsappOrderUrl } from "@/lib/business";
+import { getProductUrl, getWhatsappOrderUrl } from "@/lib/business";
 import { formatPrice } from "@/lib/utils";
 import { BangleAddToCartButton } from "@/components/cart/BangleAddToCartButton";
 import { useCart } from "@/context/CartContext";
@@ -40,7 +40,8 @@ export function ProductDetailActions({ product }: { product: ProductWithRelation
     "Hello Shree Bangles!", "", "I would like to order:", "",
     `Product: ${product.name}`, `Price: ${formatPrice(sellingPrice)}`,
     `Size: ${size ?? "Not selected"}`, `Quantity: ${quantity}`,
-    `Total: ${formatPrice(total)}`, color ? `Colour: ${color}` : null, "",
+    `Total: ${formatPrice(total)}`, `Product Link: ${getProductUrl(product.slug)}`,
+    color ? `Colour: ${color}` : null, "",
     "Please confirm availability and order details."
   ].filter((line): line is string => line !== null).join("\n");
   const whatsappUrl = getWhatsappOrderUrl(orderMessage);
